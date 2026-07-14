@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  backend:
+    build: .
+    container_name: compafest_backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    environment:
+      - ENV=development
+      - PROJECT_NAME=Warehouse Recommendation API
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
