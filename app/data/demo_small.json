@@ -1,0 +1,22 @@
+[
+  {"order_id": "ORD-0001", "product": "Mie Instan", "category": "Makanan", "quantity": 50, "location": "Aisle 1, Shelf A", "timestamp": "2026-07-20T08:00:00Z"},
+  {"order_id": "ORD-0001", "product": "Minyak Goreng", "category": "Sembako", "quantity": 10, "location": "Aisle 3, Shelf B", "timestamp": "2026-07-20T08:00:00Z"},
+  {"order_id": "ORD-0002", "product": "Mie Instan", "category": "Makanan", "quantity": 30, "location": "Aisle 1, Shelf A", "timestamp": "2026-07-20T09:15:00Z"},
+  {"order_id": "ORD-0002", "product": "Telur", "category": "Sembako", "quantity": 20, "location": "Aisle 2, Shelf C", "timestamp": "2026-07-20T09:15:00Z"},
+  {"order_id": "ORD-0003", "product": "Minyak Goreng", "category": "Sembako", "quantity": 15, "location": "Aisle 3, Shelf B", "timestamp": "2026-07-20T10:30:00Z"},
+  {"order_id": "ORD-0003", "product": "Telur", "category": "Sembako", "quantity": 25, "location": "Aisle 2, Shelf C", "timestamp": "2026-07-20T10:30:00Z"},
+  {"order_id": "ORD-0003", "product": "Kecap", "category": "Bumbu", "quantity": 12, "location": "Aisle 4, Shelf A", "timestamp": "2026-07-20T10:30:00Z"},
+  {"order_id": "ORD-0004", "product": "Kopi Sachet", "category": "Minuman", "quantity": 40, "location": "Aisle 5, Shelf D", "timestamp": "2026-07-20T11:00:00Z"},
+  {"order_id": "ORD-0004", "product": "Gula Pasir", "category": "Sembako", "quantity": 20, "location": "Aisle 2, Shelf A", "timestamp": "2026-07-20T11:00:00Z"},
+  {"order_id": "ORD-0005", "product": "Mie Instan", "category": "Makanan", "quantity": 60, "location": "Aisle 1, Shelf A", "timestamp": "2026-07-20T12:20:00Z"},
+  {"order_id": "ORD-0005", "product": "Minyak Goreng", "category": "Sembako", "quantity": 8, "location": "Aisle 3, Shelf B", "timestamp": "2026-07-20T12:20:00Z"},
+  {"order_id": "ORD-0005", "product": "Kecap", "category": "Bumbu", "quantity": 10, "location": "Aisle 4, Shelf A", "timestamp": "2026-07-20T12:20:00Z"},
+  {"order_id": "ORD-0006", "product": "Susu Kental Manis", "category": "Minuman", "quantity": 30, "location": "Aisle 5, Shelf B", "timestamp": "2026-07-20T13:45:00Z"},
+  {"order_id": "ORD-0006", "product": "Kopi Sachet", "category": "Minuman", "quantity": 35, "location": "Aisle 5, Shelf D", "timestamp": "2026-07-20T13:45:00Z"},
+  {"order_id": "ORD-0007", "product": "Beras", "category": "Sembako", "quantity": 100, "location": "Aisle 1, Shelf B", "timestamp": "2026-07-20T14:10:00Z"},
+  {"order_id": "ORD-0007", "product": "Gula Pasir", "category": "Sembako", "quantity": 18, "location": "Aisle 2, Shelf A", "timestamp": "2026-07-20T14:10:00Z"},
+  {"order_id": "ORD-0008", "product": "Sabun Mandi", "category": "Kebersihan", "quantity": 24, "location": "Aisle 6, Shelf C", "timestamp": "2026-07-20T15:00:00Z"},
+  {"order_id": "ORD-0008", "product": "Sampo", "category": "Kebersihan", "quantity": 15, "location": "Aisle 6, Shelf D", "timestamp": "2026-07-20T15:00:00Z"},
+  {"order_id": "ORD-0009", "product": "Mie Instan", "category": "Makanan", "quantity": 45, "location": "Aisle 1, Shelf A", "timestamp": "2026-07-20T16:30:00Z"},
+  {"order_id": "ORD-0009", "product": "Telur", "category": "Sembako", "quantity": 30, "location": "Aisle 2, Shelf C", "timestamp": "2026-07-20T16:30:00Z"}
+]
