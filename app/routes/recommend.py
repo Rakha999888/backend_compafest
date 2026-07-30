@@ -1,46 +1,49 @@
-from fastapi import APIRouter, Depends
-from pydantic import BaseModel, Field
-from typing import List, Optional, Dict, Any
-from app.services.recommend_service import RecommendService, get_recommend_service
+from fastapi import APIRouter, HTTPException
+from app.schemas.recommend import RecommendRequest, RecommendResponse
+from app.services.recommendation_service import RecommendationService
+from app.repositories.order_repository import get_order_repository
+from app.adapters.ml_adapter import get_ml_adapter
+from app.services.dummy_service import dummy_service
+from typing import List
 
-router = APIRouter(tags=["Recommendation"])
-
-
-class InferenceOrder(BaseModel):
-    order_id: str
-    categories: List[str] = Field(min_items=1)
+router = APIRouter(prefix="/recommend", tags=["recommend"])
 
 
-class RecommendRequest(BaseModel):
-    orders: List[InferenceOrder] = Field(min_items=1)
-    seed: Optional[int] = 42
-
-
-class FullPipelineRequest(BaseModel):
-    data_source: str
-    max_orders: Optional[int] = None
-    seed: Optional[int] = 42
-
-
-@router.post("/recommend")
-async def recommend(
-    payload: RecommendRequest,
-    service: RecommendService = Depends(get_recommend_service),
-):
-    orders = [
-        {"order_id": o.order_id, "categories": o.categories}
-        for o in payload.orders
-    ]
-    return await service.recommend(orders=orders, seed=payload.seed or 42)
-
-
-@router.post("/recommend/full-pipeline")
-async def full_pipeline(
-    payload: FullPipelineRequest,
-    service: RecommendService = Depends(get_recommend_service),
-):
-    return await service.full_pipeline(
-        data_source=payload.data_source,
-        max_orders=payload.max_orders,
-        seed=payload.seed or 42,
+def get_recommendation_service() -> RecommendationService:
+    return RecommendationService(
+        order_repo=get_order_repository(),
+        ml_adapter=get_ml_adapter()
     )
+
+
+@router.post("", response_model=RecommendResponse)
+async def create_recommendation(request: RecommendRequest):
+    try:
+        if request.dataset:
+            transactions = dummy_service.get_dataset_data(request.dataset)
+            order_ids = list(set(tx["order_id"] for tx in transactions))
+        elif request.order_ids:
+            order_ids = request.order_ids
+        else:
+            raise HTTPException(
+                status_code=422,
+                detail="Either 'dataset' or 'order_ids' must be provided"
+            )
+        
+        service = get_recommendation_service()
+        result = service.recommend(order_ids)
+        
+        if "error" in result:
+            return RecommendResponse(
+                success=False,
+                message="No orders found",
+                error=result["error"]
+            )
+        
+        return RecommendResponse(
+            success=True,
+            message="Recommendation generated successfully",
+            data=result
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
