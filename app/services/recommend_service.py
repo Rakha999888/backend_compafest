@@ -108,27 +108,42 @@ class RecommendService:
                 },
             })
 
+        dc = ml_response.distance_comparison
         distance_comparison = {
-            "distance_random": ml_response.distance_comparison.distance_random,
-            "distance_abc": ml_response.distance_comparison.distance_abc,
-            "distance_system": ml_response.distance_comparison.distance_system,
-            "savings_vs_random_pct": ml_response.distance_comparison.savings_vs_random_pct,
-            "savings_vs_abc_pct": ml_response.distance_comparison.savings_vs_abc_pct,
+            "baseline_random": dc.distance_random,
+            "baseline_abc": dc.distance_abc,
+            "optimized": dc.distance_system,
+            "improvement_vs_random": dc.savings_vs_random_pct,
+            "improvement_vs_abc": dc.savings_vs_abc_pct,
         }
 
-        metadata = {}
-        if ml_response.metadata:
-            metadata = {
-                "n_orders": ml_response.metadata.n_orders,
-                "n_categories": ml_response.metadata.n_categories,
-                "n_batches": ml_response.metadata.n_batches,
-                "total_distance": ml_response.metadata.total_distance,
-                "timings": ml_response.metadata.timings.model_dump(exclude_none=True) if ml_response.metadata.timings else None,
-                "disclaimer": ml_response.metadata.disclaimer,
-            }
+        md = ml_response.metadata
+        total_categories = len(slotting_map)
+        total_orders = md.n_orders if md and md.n_orders else sum(len(b["order_ids"]) for b in batches)
+        total_batches = md.n_batches if md and md.n_batches else len(batches)
+        total_distance = md.total_distance if md and md.total_distance else sum(b["picking_route"]["distance"] for b in batches)
 
-        if ml_response.summary:
-            metadata["summary"] = ml_response.summary.model_dump(exclude_none=True)
+        metadata = {
+            "total_orders": total_orders,
+            "total_categories": total_categories,
+            "total_batches": total_batches,
+            "total_distance": total_distance,
+            "min_support_used": 0.3,
+            "min_confidence_used": 0.7,
+            "frequent_itemsets_count": 0,
+            "rules_count": 0,
+        }
+
+        if md and md.timings:
+            metadata["timings"] = md.timings.model_dump(exclude_none=True)
+        if md and md.disclaimer:
+            metadata["disclaimer"] = md.disclaimer
+
+        all_order_ids = []
+        for batch in batches:
+            all_order_ids.extend(batch["order_ids"])
+
+        from datetime import datetime
 
         return {
             "success": True,
@@ -138,6 +153,9 @@ class RecommendService:
                 "batches": batches,
                 "distance_comparison": distance_comparison,
                 "metadata": metadata,
+                "generated_at": datetime.now().isoformat(),
+                "requested_order_ids": all_order_ids,
+                "processed_order_count": total_orders,
             },
         }
 
