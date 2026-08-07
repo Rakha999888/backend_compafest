@@ -3,7 +3,14 @@ import logging
 from fastapi import APIRouter, HTTPException, Request
 
 from app.core.ml_state import MLState
-from app.schemas.ml import DefaultWarehouseResponse, TrainResponse
+from app.schemas.ml import (
+    DefaultWarehouseResponse,
+    InferRequest,
+    InferResponse,
+    TrainResponse,
+    WarehouseConfigRequest,
+    WarehouseConfigResponse,
+)
 from app.services.ml_service import MLService
 
 logger = logging.getLogger(__name__)
@@ -48,3 +55,50 @@ async def get_default_warehouse(request: Request):
         "total_positions": default.total_positions,
         "description": f"Default config: {default.total_positions} slot, {default.n_aisles} lorong.",
     }
+
+@router.post("/warehouse", response_model=WarehouseConfigResponse)
+async def configure_warehouse(
+    request: Request,
+    payload: WarehouseConfigRequest = WarehouseConfigRequest(),
+):
+    """Setup warehouse grid + slotting."""
+    state = _get_state(request)
+    if not state.is_trained:
+        raise HTTPException(
+            status_code=422,
+            detail={"error": "NOT_TRAINED", "message": "Jalankan POST /api/ml/train dulu."},
+        )
+    try:
+        config_dict = payload.model_dump(exclude_none=True)
+        return _service.configure_warehouse(state, config_dict)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=422,
+            detail={"error": "GRID_TOO_SMALL", "message": str(e)},
+        )
+
+@router.post("/infer", response_model=InferResponse)
+async def infer(request: Request, payload: InferRequest):
+    """Inference per request (kirim orders -> dapat batches + routes)."""
+    state = _get_state(request)
+    if not state.is_trained:
+        raise HTTPException(
+            status_code=422,
+            detail={"error": "NOT_TRAINED", "message": "Model belum di-train."},
+        )
+    if not state.is_configured:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "error": "WAREHOUSE_NOT_CONFIGURED",
+                "message": "Jalankan POST /api/ml/warehouse dulu.",
+            },
+        )
+    try:
+        orders = [o.model_dump() for o in payload.orders]
+        return _service.infer(state, orders, payload.seed)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=422,
+            detail={"error": "EMPTY_ORDERS", "message": str(e)},
+        )
