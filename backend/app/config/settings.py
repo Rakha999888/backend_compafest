@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     def get_random_seed(self) -> int:
         if self.ML_RANDOM_SEED is not None:
             return self.ML_RANDOM_SEED
-        return random.randint(1000, 999999)
+        return random.randint(10, 9999)
 
     class Config:
         env_file = ".env"
