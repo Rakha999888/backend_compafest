@@ -6,7 +6,7 @@ class Settings(BaseSettings):
     API_PREFIX: str = "/api"
     ENV: str = "development"
 
-    DATA_CSV_PATH: str = "data/indonesia_e-commerce_sales_and_shipping_2023\u20132025/all_months_clean.csv"
+    DATA_CSV_PATH: str = "app/data/indonesia_e-commerce_sales_and_shipping_2023–2025/all_months_clean.csv"
     ML_RANDOM_SEED: int = 42
 
     class Config:
