@@ -29,7 +29,7 @@ class MLService:
 
         if report.warnings:
             for w in report.warnings:
-                logger.warning(f"Peringatan validasi dataset: {w.rule_name} - {w.message}")
+                logger.warning(f"Peringatan validasi dataset: {w.rule_name} -> {w.message}")
 
         # full dataset, tidak ada split (demo pakai dummy orders)
         data = preprocess_primary(df)
