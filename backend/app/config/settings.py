@@ -1,3 +1,5 @@
+import random
+from typing import Optional
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
@@ -7,7 +9,12 @@ class Settings(BaseSettings):
     ENV: str = "development"
 
     DATA_CSV_PATH: str = "app/data/indonesia_e-commerce_sales_and_shipping_2023–2025/all_months_clean.csv"
-    ML_RANDOM_SEED: int = 42
+    ML_RANDOM_SEED: Optional[int] = None
+
+    def get_random_seed(self) -> int:
+        if self.ML_RANDOM_SEED is not None:
+            return self.ML_RANDOM_SEED
+        return random.randint(1000, 999999)
 
     class Config:
         env_file = ".env"

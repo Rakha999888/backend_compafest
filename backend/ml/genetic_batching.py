@@ -130,21 +130,28 @@ def _evaluate_population(
             for chrom in population
         ]
 
-def init_chromosome(n_orders: int, max_batches: int) -> list[int]:
+def init_chromosome(
+    n_orders: int,
+    max_batches: int,
+    rng: random.Random | None = None,
+) -> list[int]:
     """Inisialisasi kromosom acak."""
-    chrom = [random.randint(0, max_batches - 1) for _ in range(n_orders)]
+    r = rng if rng is not None else random
+    chrom = [r.randint(0, max_batches - 1) for _ in range(n_orders)]
     return normalize_rgf(chrom)
 
 def group_aware_crossover(
     parent1: list[int],
     parent2: list[int],
+    rng: random.Random | None = None,
 ) -> tuple[list[int], list[int]]:
     """Group-aware crossover: tukar subset kelompok utuh antar induk."""
+    r = rng if rng is not None else random
     n = len(parent1)
 
     groups_p1 = set(parent1)
     n_groups_select = max(1, len(groups_p1) // 2)
-    selected_groups = set(random.sample(sorted(groups_p1), n_groups_select))
+    selected_groups = set(r.sample(sorted(groups_p1), n_groups_select))
 
     child1 = list(parent1)
     for i in range(n):
@@ -153,7 +160,7 @@ def group_aware_crossover(
 
     groups_p2 = set(parent2)
     n_groups_select2 = max(1, len(groups_p2) // 2)
-    selected_groups2 = set(random.sample(sorted(groups_p2), n_groups_select2))
+    selected_groups2 = set(r.sample(sorted(groups_p2), n_groups_select2))
 
     child2 = list(parent2)
     for i in range(n):
@@ -162,13 +169,17 @@ def group_aware_crossover(
 
     return normalize_rgf(child1), normalize_rgf(child2)
 
-def single_order_mutation(chromosome: list[int]) -> list[int]:
+def single_order_mutation(
+    chromosome: list[int],
+    rng: random.Random | None = None,
+) -> list[int]:
     """Mutasi: reassign satu order ke batch lain secara acak."""
+    r = rng if rng is not None else random
     chrom = list(chromosome)
     n = len(chrom)
-    idx = random.randint(0, n - 1)
+    idx = r.randint(0, n - 1)
     max_group = max(chrom) + 1  # boleh membuat batch baru
-    chrom[idx] = random.randint(0, max_group)
+    chrom[idx] = r.randint(0, max_group)
     return normalize_rgf(chrom)
 
 def run_ga_batching(
@@ -186,8 +197,7 @@ def run_ga_batching(
     seed: int = RANDOM_SEED,
 ) -> BatchingResult:
     """Jalankan GA untuk order batching."""
-    random.seed(seed)
-    np.random.seed(seed)
+    rng = random.Random(seed)
     t_start = time.time()
 
     n_orders = len(orders)
@@ -217,7 +227,7 @@ def run_ga_batching(
         )
 
     population = [
-        init_chromosome(n_orders, max_batches)
+        init_chromosome(n_orders, max_batches, rng=rng)
         for _ in range(population_size)
     ]
 
@@ -265,14 +275,14 @@ def run_ga_batching(
 
         selected = []
         for _ in range(population_size - n_elite):
-            tournament = random.sample(range(len(population)), tournament_size)
+            tournament = rng.sample(range(len(population)), tournament_size)
             winner = max(tournament, key=lambda i: fitness_values[i])
             selected.append(list(population[winner]))
 
         offspring = []
         for i in range(0, len(selected) - 1, 2):
-            if random.random() < crossover_rate:
-                c1, c2 = group_aware_crossover(selected[i], selected[i + 1])
+            if rng.random() < crossover_rate:
+                c1, c2 = group_aware_crossover(selected[i], selected[i + 1], rng=rng)
                 offspring.extend([c1, c2])
             else:
                 offspring.extend([list(selected[i]), list(selected[i + 1])])
@@ -281,8 +291,8 @@ def run_ga_batching(
             offspring.append(list(selected[-1]))
 
         for i in range(len(offspring)):
-            if random.random() < mutation_rate:
-                offspring[i] = single_order_mutation(offspring[i])
+            if rng.random() < mutation_rate:
+                offspring[i] = single_order_mutation(offspring[i], rng=rng)
 
         trimmed_offspring = offspring[:population_size - n_elite]
         population = elite + trimmed_offspring

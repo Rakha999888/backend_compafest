@@ -224,9 +224,11 @@ def infer(
     grid: WarehouseGrid,
     categories: list[str],
     frequencies: dict[str, int],
-    seed: int = RANDOM_SEED,
+    seed: int | None = None,
 ) -> InferenceResult:
     """GA batching + routing per request, raises ValueError jika orders kosong atau format invalid."""
+    actual_seed = seed if seed is not None else RANDOM_SEED
+
     if not orders:
         raise ValueError("Daftar orders kosong.")
 
@@ -260,8 +262,10 @@ def infer(
     ]
 
     batching = run_ga_batching(
-        order_objects, affinity,
-        population_size=POPULATION_SIZE, seed=seed,
+        order_objects,
+        affinity,
+        population_size=POPULATION_SIZE,
+        seed=actual_seed,
     )
 
     order_map = {o.order_id: o for o in order_objects}

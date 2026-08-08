@@ -1,5 +1,6 @@
 import logging
 import time
+from typing import Optional
 
 from app.config.settings import settings
 from app.core.ml_state import MLState
@@ -11,6 +12,9 @@ class MLService:
     def train(self, state: MLState) -> dict:
         """Run full training pipeline."""
         from ml.preprocessing import load_primary_dataset, preprocess_primary
+
+        state.seed = settings.get_random_seed()
+        logger.info("random seed terpasang: %d", state.seed)
         from ml.temporal_arm import run_temporal_arm_pipeline
         from ml.validation import validate_primary_dataset
         from ml.warehouse_simulation import compute_category_frequencies
@@ -92,9 +96,10 @@ class MLService:
             "time_s": result.time_s,
         }
 
-    def infer(self, state: MLState, orders: list[dict], seed: int = settings.ML_RANDOM_SEED) -> dict:
+    def infer(self, state: MLState, orders: list[dict], seed: Optional[int] = None) -> dict:
         from ml.service import infer as ml_infer
 
+        actual_seed = seed if seed is not None else (state.seed or settings.get_random_seed())
         result = ml_infer(
             orders=orders,
             affinity=state.affinity,
@@ -102,7 +107,7 @@ class MLService:
             grid=state.warehouse_result.grid,
             categories=state.categories,
             frequencies=state.frequencies,
-            seed=seed,
+            seed=actual_seed,
         )
 
         return {

@@ -5,6 +5,9 @@ from typing import Any, Optional
 
 @dataclass
 class MLState:
+    # random seed
+    seed: Optional[int] = None
+
     # hasil training
     is_trained: bool = False
     affinity: Optional[Any] = None

@@ -27,7 +27,8 @@ async def lifespan(app: FastAPI):
             app.state.ml_state.train_meta.get("n_rules", 0),
         )
     except Exception as exc:
-        # server tetap hidup; endpoint yang butuh is_trained akan return NOT_TRAINED
+        # server tetap hidup
+        # endpoint yang butuh is_trained akan return NOT_TRAINED
         logger.error("training gagal: %s", exc)
 
     yield

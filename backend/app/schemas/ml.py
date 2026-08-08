@@ -39,7 +39,7 @@ class OrderItem(BaseModel):
 
 class InferRequest(BaseModel):
     orders: list[OrderItem] = Field(min_length=1)
-    seed: int = Field(default=42)
+    seed: Optional[int] = Field(default=None)
 
 class InferResponse(BaseModel):
     batches: list[dict[str, Any]]
