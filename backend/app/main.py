@@ -12,6 +12,12 @@ from app.routes import api_router
 from app.services.ml_service import MLService
 from app.utils.exceptions import DatasetNotFoundError
 
+logging.basicConfig(
+    level=getattr(logging, settings.LOG_LEVEL.upper(), logging.INFO),
+    format="%(levelname)s:     %(name)s - %(message)s",
+    force=True,
+)
+
 logger = logging.getLogger("ml.startup")
 
 @asynccontextmanager

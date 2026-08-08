@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     PROJECT_VERSION: str = "1.0.0"
     API_PREFIX: str = "/api"
     ENV: str = "development"
+    LOG_LEVEL: str = "INFO"
 
     DATA_CSV_PATH: str = "app/data/indonesia_e-commerce_sales_and_shipping_2023–2025/all_months_clean.csv"
     ML_RANDOM_SEED: Optional[int] = None
