@@ -12,12 +12,14 @@ class RuleResult:
     total_rows: int
     failing_rows: int
     message: str
+    is_critical: bool = True
 
     @property
     def failing_pct(self) -> float:
         if self.total_rows == 0:
             return 0.0
         return self.failing_rows / self.total_rows * 100
+
 
 @dataclass
 class ValidationReport:
@@ -31,10 +33,18 @@ class ValidationReport:
 
     @property
     def critical_failures(self) -> list[RuleResult]:
-        return [r for r in self.results if not r.passed]
+        return [r for r in self.results if not r.passed and r.is_critical]
+
+    @property
+    def has_critical_failures(self) -> bool:
+        return len(self.critical_failures) > 0
+
+    @property
+    def warnings(self) -> list[RuleResult]:
+        return [r for r in self.results if not r.passed and not r.is_critical]
 
     def summary(self) -> str:
-        status = "OK" if self.all_passed else "GAGAL"
+        status = "OK" if not self.has_critical_failures else "GAGAL"
         lines = [
             f"Validasi: {self.dataset_name}",
             f"  Total baris : {self.total_rows}",
@@ -43,7 +53,12 @@ class ValidationReport:
             "",
         ]
         for r in self.results:
-            tag = "OK" if r.passed else "GAGAL"
+            if r.passed:
+                tag = "OK"
+            elif r.is_critical:
+                tag = "GAGAL"
+            else:
+                tag = "WARNING"
             lines.append(f"  [{tag}] {r.rule_name}")
             lines.append(f"        Baris gagal: {r.failing_rows} ({r.failing_pct:.2f}%)")
             lines.append(f"        {r.message}")
@@ -131,6 +146,7 @@ def validate_primary_dataset(
                 f"(termasuk {original_na} NaN asli). "
                 "Preprocessing akan mencoba imputasi."
             ),
+            is_critical=False,
         )
     )
 
@@ -234,8 +250,9 @@ def validate_benchmark_dataset(df: pd.DataFrame) -> ValidationReport:
             message=(
                 "Semua timestamp valid."
                 if ts_invalid == 0
-                else f"{ts_invalid} baris timestamp tidak valid."
+                else f"{ts_invalid} baris timestamp tidak valid. Preprocessing akan mencoba imputasi."
             ),
+            is_critical=False,
         )
     )
 

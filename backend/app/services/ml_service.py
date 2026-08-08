@@ -19,9 +19,13 @@ class MLService:
 
         df = load_primary_dataset(settings.DATA_CSV_PATH)
         report = validate_primary_dataset(df)
-        if not report.all_passed:
+        if report.has_critical_failures:
             failures = [r.message for r in report.critical_failures]
             raise ValueError("Validasi dataset gagal:\n" + "\n".join(failures))
+
+        if report.warnings:
+            for w in report.warnings:
+                logger.warning(f"Peringatan validasi dataset: {w.rule_name} - {w.message}")
 
         # full dataset, tidak ada split (demo pakai dummy orders)
         data = preprocess_primary(df)
