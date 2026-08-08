@@ -43,7 +43,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.PROJECT_VERSION,
-    description="Warehouse AI Backend",
+    description="Warehouse Recommendation System Backend",
     openapi_url=f"{settings.API_PREFIX}/openapi.json",
     lifespan=lifespan,
 )

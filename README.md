@@ -1,74 +1,40 @@
-# Warehouse Recommendation API 🚀
-### Sistem Kecerdasan Buatan (AI) untuk Optimasi Rute & Tata Letak Gudang
+# Warehouse Recommendation System - Project Overview
 
-Selamat datang! Proyek ini adalah sistem backend berbasis **Python (FastAPI)** dan **Docker** yang dirancang untuk membantu pengelola gudang mengoptimalkan operasional harian mereka. 
-
-Sistem ini membantu memecahkan dua masalah terbesar di gudang:
-1. **Di mana sebaiknya barang disimpan?** (*Slotting Optimization*) agar barang yang sering keluar diletakkan di tempat yang paling mudah dijangkau.
-2. **Lewat jalan mana untuk mengambil barang?** (*Picking Route*) agar pekerja tidak berjalan terlalu jauh dan bisa menghemat waktu.
+Sistem Rekomendasi Slotting Gudang dan Rute Picking Dinamis Berbasis Association Rule Mining (ARM) dan Algoritma Genetika pada Data Transaksi E-Commerce Riil Indonesia.
 
 ---
 
-## 📦 Apa Saja Fitur Utama Aplikasi Ini?
+## Ringkasan Proyek
 
-Aplikasi ini menyediakan beberapa fitur siap pakai yang dapat diakses melalui browser:
-* **Cek Status Aplikasi (`GET /health`)**: Untuk memastikan server berjalan dengan baik.
-* **Daftar Simulasi Data (`GET /demo/list`)**: Menyediakan 3 pilihan ukuran data simulasi (Kecil: 10 data, Sedang: 50 data, Besar: 100 data).
-* **Unduh Data Mentah (`GET /demo/{dataset_id}`)**: Melihat data transaksi barang gudang asli sebelum dioptimasi.
-* **Rekomendasi AI (`POST /recommend`)**: Memproses data transaksi untuk menghasilkan rekomendasi tata letak barang baru yang lebih efisien dan rute jalan terpendek untuk pekerja.
+Biaya logistik nasional Indonesia tercatat sebesar 14,29% dari Produk Domestik Bruto (Bappenas, Kemenko Perekonomian, & BPS, 2023). Komponen pergudangan menyumbang bagian signifikan dari biaya logistik tersebut. Di dalam operasional gudang, aktivitas pengambilan barang (*order picking*) secara konsisten terbukti menjadi komponen biaya terbesar yang memakan 50-75% dari total biaya operasional gudang (Gamal et al., 2026; Masae et al., 2020; Chiang et al., 2014).
 
----
+Sebagian besar gudang e-commerce UMKM di Indonesia masih mengandalkan penataan barang (*slotting*) statis berbasis aturan sederhana (seperti ABC tradisional) atau persepsi intuitif (Amorim-Lopes et al., 2020; Öztürkoğlu, 2018). Pada lingkungan e-commerce yang memiliki tingkat volatilitas dan fluktuasi permintaan musiman yang tinggi, strategi slotting statis yang jarang dievaluasi ulang akan mengalami penurunan performa secara drastis seiring waktu (Kofler et al., 2015). Hal ini menyebabkan jarak tempuh *picker* menjadi tidak efisien dan waktu pemrosesan pesanan membengkak.
 
-## ⚙️ Cara Menjalankan Aplikasi (Sangat Mudah!)
-
-Anda bisa memilih salah satu dari dua cara mudah berikut untuk menjalankan aplikasi di komputer Anda:
-
-### Cara 1: Menggunakan Docker (Rekomendasi - Paling Praktis)
-Jika komputer Anda sudah terpasang **Docker Desktop**, Anda tidak perlu menginstal Python secara manual.
-
-1. Buka terminal (CMD / PowerShell / Terminal Mac) di folder proyek ini.
-2. Masuk ke folder backend:
-   ```bash
-   cd backend
-   ```
-3. Jalankan perintah berikut:
-   ```bash
-   docker compose up
-   ```
-4. Selesai! Aplikasi Anda sudah aktif.
+Sistem ini memecahkan dua masalah utama dalam operasional gudang manual (*picker-to-parts*):
+1. **Slotting Optimization**: Menentukan posisi peletakan kategori barang di rak gudang berdasarkan frekuensi kemunculan (*turnover*) dan kekuatan asosiasi antar barang yang diperhitungkan secara temporal.
+2. **Dynamic Order Batching & Routing**: Mengelompokkan beberapa pesanan ke dalam *batch* optimal serta menentukan rute pengambilan barang terpendek untuk meminimalkan jarak tempuh total *picker*.
 
 ---
 
-### Cara 2: Menjalankan Manual dengan Python
-Pastikan komputer Anda sudah terpasang **Python 3.12**.
+## Teknologi dan Metode Utama
 
-1. Buka terminal di folder proyek ini, lalu masuk ke folder backend:
-   ```bash
-   cd backend
-   ```
-2. Buat lingkungan virtual (virtual environment) agar library tidak berantakan:
-   ```bash
-   python -m venv venv
-   ```
-3. Aktifkan lingkungan virtual:
-   * **Windows (PowerShell)**: `.\venv\Scripts\Activate.ps1`
-   * **Windows (CMD)**: `.\venv\Scripts\activate.bat`
-   * **Mac / Linux**: `source venv/bin/activate`
-4. Install semua modul pendukung:
-   ```bash
-   pip install -r requirements.txt
-   ```
-5. Jalankan aplikasinya:
-   ```bash
-   uvicorn app.main:app --reload
-   ```
+* **Temporal Weighted FP-Growth**: Mengekstraksi *association rules* dari transaksi historis e-commerce dengan pembobotan waktu *half-life* 90 hari. Transaksi baru diberikan bobot eksponensial lebih tinggi untuk menangkap dinamika tren pasar.
+* **Integrated Cluster-Based Slotting**: Mengombinasikan skor frekuensi kategori dan matriks afinitas produk untuk menempatkan pasangan barang yang sering dibeli bersamaan pada lokasi rak yang berdekatan dan dekat dengan titik *depot*.
+* **Genetic Algorithm (DEAP) Order Batching**: Mengelompokkan pesanan ke dalam *batch* berdasarkan kesamaan afinitas barang, dibatasi oleh kapasitas maksimum *picker* (misalnya 10 item per *batch*).
+* **Routing Heuristics**: Menghitung rute navigasi *picker* di sepanjang lorong gudang (*aisles*) serta menyediakan estimasi penghematan jarak dibandingkan dengan penempatan barang secara acak (*random slotting*).
 
 ---
 
-## 🔎 Cara Mencoba Aplikasi & Melihat Hasil Rekomendasi
+Untuk instruksi instalasi, konfigurasi environment variable, dan rincian *endpoint* API, silakan merujuk ke **[Dokumentasi Backend Lengkap](backend/README.md)**.
 
-Setelah aplikasi berjalan, buka browser Anda dan kunjungi halaman berikut:
+---
 
-👉 **[http://localhost:8000/docs](http://localhost:8000/docs)** (Dokumentasi Swagger)
+## Daftar Rujukan
 
-Halaman ini sangat ramah pengguna. Anda bisa langsung mencoba setiap menu (*endpoint*) secara visual dengan mengklik tombol **"Try it out"** lalu klik **"Execute"** untuk melihat hasil datanya secara langsung tanpa perlu mengetik kode pemrograman apa pun!
+1. **Bappenas, Kemenko Perekonomian, & Badan Pusat Statistik (BPS).** (2023). Layanan National Logistic Ecosystem Terus Dikembangkan Pemerintah untuk Menunjang Keberhasilan Reformasi Logistik 4.0. [www.ekon.go.id](https://ekon.go.id/publikasi/detail/5421/layanan-national-logistic-ecosystem-terus-dikembangkan-pemerintah-untuk-menunjang-keberhasilan-reformasi-logistik-40)
+2. **Gamal, S., Bajba, S., Mahabub, S. A., Abdel-Aal, M. A., & Haddad, A. N.** (2026). The On-Demand Warehousing Problem: A Taxonomic Review. *Journal of Engineering*, 2026(1), Article 6109448. [https://doi.org/10.1155/je/6109448](https://doi.org/10.1155/je/6109448)
+3. **Masae, M., Glock, C. H., & Grosse, E. H.** (2020). Order picker routing in warehouses: A systematic literature review. *International Journal of Production Economics*, 224, Article 107564. [https://doi.org/10.1016/j.ijpe.2019.107564](https://doi.org/10.1016/j.ijpe.2019.107564)
+4. **Kofler, A., Beham, A., Wagner, S., & Affenzeller, M.** (2015). A robust storage location assignment problem considering demand location uncertainty. *Procedia Computer Science*, 60, 1422-1431. [https://doi.org/10.1007/978-3-319-15720-7_29](https://doi.org/10.1007/978-3-319-15720-7_29)
+5. **Chiang, D. M. H., Lin, C., & Chen, M.** (2014). Data mining based storage assignment heuristics for travel distance reduction. *Expert Systems*, 31(1), 81-90. [https://doi.org/10.1111/exsy.12006](https://doi.org/10.1111/exsy.12006)
+6. **Öztürkoğlu, Ö.** (2018). A bi-objective mathematical model for product allocation in block stacking warehouses. *International Transactions in Operational Research*, 27(4), 2184-2210. [https://doi.org/10.1111/itor.12506](https://doi.org/10.1111/itor.12506)
+7. **Amorim-Lopes, M., Guimarães, L., Alves, J., & Almada-Lobo, B.** (2020). Improving picking performance at a large retailer warehouse by combining probabilistic simulation, optimization, and discrete-event simulation. *International Transactions in Operational Research*, 28(2), 687-715. [https://doi.org/10.1111/itor.12852](https://doi.org/10.1111/itor.12852)
