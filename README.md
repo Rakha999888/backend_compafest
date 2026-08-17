@@ -11,6 +11,7 @@ Biaya logistik nasional Indonesia tercatat sebesar 14,29% dari Produk Domestik B
 Sebagian besar gudang e-commerce UMKM di Indonesia masih mengandalkan penataan barang (*slotting*) statis berbasis aturan sederhana (seperti ABC tradisional) atau persepsi intuitif (Amorim-Lopes et al., 2020; Öztürkoğlu, 2018). Pada lingkungan e-commerce yang memiliki tingkat volatilitas dan fluktuasi permintaan musiman yang tinggi, strategi slotting statis yang jarang dievaluasi ulang akan mengalami penurunan performa secara drastis seiring waktu (Kofler et al., 2015). Hal ini menyebabkan jarak tempuh *picker* menjadi tidak efisien dan waktu pemrosesan pesanan membengkak.
 
 Sistem ini memecahkan dua masalah utama dalam operasional gudang manual (*picker-to-parts*):
+
 1. **Slotting Optimization**: Menentukan posisi peletakan kategori barang di rak gudang berdasarkan frekuensi kemunculan (*turnover*) dan kekuatan asosiasi antar barang yang diperhitungkan secara temporal.
 2. **Dynamic Order Batching & Routing**: Mengelompokkan beberapa pesanan ke dalam *batch* optimal serta menentukan rute pengambilan barang terpendek untuk meminimalkan jarak tempuh total *picker*.
 

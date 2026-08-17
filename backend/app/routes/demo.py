@@ -2,7 +2,8 @@ from fastapi import APIRouter
 from typing import List
 from app.schemas.demo import DatasetsResponse
 from app.schemas.transaction import Transaction
-from app.services import demo_service, dummy_service
+from app.services.demo_service import demo_service
+from app.services.dummy_service import dummy_service
 
 router = APIRouter(prefix="/demo", tags=["Demo"])
 

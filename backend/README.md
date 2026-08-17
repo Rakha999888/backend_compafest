@@ -88,11 +88,13 @@ backend/
 ### Metode 1: Menggunakan Docker Compose
 
 1. Buka terminal di direktori `backend/`:
+
    ```bash
    cd backend
    ```
 
 2. Jalankan container:
+
    ```bash
    docker compose up
    ```
@@ -104,35 +106,44 @@ backend/
 ### Metode 2: Menjalankan Secara Manual dengan Python (Virtual Environment)
 
 1. Buka terminal di direktori `backend/`:
+
    ```bash
    cd backend
    ```
 
 2. Buat virtual environment Python 3.12:
+
    ```bash
    python -m venv venv
    ```
 
 3. Aktifkan virtual environment:
    * **Linux / macOS**:
+
      ```bash
      source venv/bin/activate
      ```
+
    * **Windows (PowerShell)**:
+
      ```powershell
      .\venv\Scripts\Activate.ps1
      ```
+
    * **Windows (CMD)**:
+
      ```cmd
      .\venv\Scripts\activate.bat
      ```
 
 4. Install dependencies aplikasi:
+
    ```bash
    pip install -r requirements.txt
    ```
 
 5. Menjalankan server pengembangan:
+
    ```bash
    uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
    ```
@@ -144,7 +155,7 @@ backend/
 Aplikasi membaca konfigurasi dari *environment variables*. Berikut daftar variabel yang tersedia:
 
 | Nama Variabel | Tipe | Default | Deskripsi |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `ENV` | `str` | `development` | Environment aplikasi (`development` / `production`). |
 | `PROJECT_NAME` | `str` | `Warehouse Recommendation System` | Nama proyek pada OpenAPI documentation. |
 | `API_PREFIX` | `str` | `/api` | Prefix untuk seluruh router API. |
@@ -210,7 +221,7 @@ Aplikasi membaca konfigurasi dari *environment variables*. Berikut daftar variab
 Backend mengembalikan HTTP Status `422 Unprocessable Entity` dengan payload terstruktur apabila kriteria penggunaan endpoint belum terpenuhi:
 
 | Error Code | HTTP Status | Kondisi Penyebab |
-|---|:---:|---|
+| --- | :---: | --- |
 | `NOT_TRAINED` | `422` | Endpoint `/warehouse` atau `/infer` dipanggil sebelum proses *training* selesai. |
 | `WAREHOUSE_NOT_CONFIGURED` | `422` | Endpoint `/infer` dipanggil sebelum konfigurasi gudang disetup via `POST /api/ml/warehouse`. |
 | `GRID_TOO_SMALL` | `422` | Kapasitas total posisi rak gudang yang dimasukkan lebih kecil dari jumlah kategori produk. |

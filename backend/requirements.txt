@@ -1,21 +1,29 @@
-fastapi>=0.110.0
-pydantic>=2.6.0
-pydantic-settings>=2.2.0
-uvicorn>=0.28.0
+# Core Framework & Async
+fastapi>=0.141.1
+uvicorn>=0.52.1
+httpx>=0.28.1
+python-multipart>=0.0.32
+slowapi>=0.1.10
 
-# ML Core
-pandas>=2.2.2
-numpy>=1.26.4
-scipy>=1.13.1
+# Data Validation & Settings
+pydantic>=2.13.4
+pydantic-settings>=2.15.0
+python-dotenv>=1.2.2
+
+# ML Core & Scientific Computing
+numpy>=2.5.2
+pandas>=3.0.5
+scipy>=1.18.0
 
 # Association Rule Mining
-mlxtend>=0.23.1
+mlxtend>=0.25.0
 
 # Genetic Algorithm
-deap>=1.4.1
+deap>=1.4.4
 
 # Graph & Slotting
-networkx>=3.3
+networkx>=3.6.1
 
-# Data loading (untuk .xlsx benchmark)
+# Utilities & File Handling
 openpyxl>=3.1.5
+python-magic>=0.4.27

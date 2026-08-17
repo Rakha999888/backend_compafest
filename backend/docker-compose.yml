@@ -11,5 +11,5 @@ services:
     environment:
       - ENV=development
       - PROJECT_NAME=Warehouse Recommendation System
-      - DATA_CSV_PATH=app/data/indonesia_e-commerce_sales_and_shipping_2023–2025/all_months_clean.csv
+      - DATA_CSV_PATH=app/data/indonesia-e-commerce-sales-and-shipping-2023-2025/all_months_clean.csv
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
