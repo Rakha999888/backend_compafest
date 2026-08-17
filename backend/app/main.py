@@ -1,9 +1,15 @@
+import logging
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+
 from app.config.settings import settings
+from app.core.ml_state import MLState
 from app.routes import api_router
+from app.services.ml_service import MLService
 from app.utils.exceptions import (
     DatasetNotFoundError,
     InvalidTransactionDataError,
@@ -12,11 +18,38 @@ from app.utils.exceptions import (
     map_ml_error_to_http_status,
 )
 
+logging.basicConfig(
+    level=getattr(logging, settings.LOG_LEVEL.upper(), logging.INFO),
+    format="%(levelname)s:     %(name)s - %(message)s",
+    force=True,
+)
+logger = logging.getLogger("ml.startup")
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    app.state.ml_state = MLState()
+    logger.info("training dimulai saat startup...")
+    try:
+        MLService().train(app.state.ml_state)
+        logger.info(
+            "training selesai: %d kategori, %d aturan",
+            app.state.ml_state.train_meta.get("n_categories", 0),
+            app.state.ml_state.train_meta.get("n_rules", 0),
+        )
+    except Exception as exc:
+        logger.error("training gagal: %s", exc)
+
+    yield
+    # shutdown
+
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.PROJECT_VERSION,
     description="SIGAP Backend - Warehouse Slotting & Picking Recommendation via ML Service",
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
+    lifespan=lifespan,
 )
 
 
@@ -83,6 +116,8 @@ app.add_middleware(
 )
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
+
+app.include_router(api_router, prefix="/api")
 
 from app.routes.health import router as health_router
 app.include_router(health_router)
