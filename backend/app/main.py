@@ -1,16 +1,51 @@
+import logging
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+
 from app.config.settings import settings
+from app.core.ml_state import MLState
 from app.routes import api_router
+from app.services.ml_service import MLService
 from app.utils.exceptions import DatasetNotFoundError
+
+logging.basicConfig(
+    level=getattr(logging, settings.LOG_LEVEL.upper(), logging.INFO),
+    format="%(levelname)s:     %(name)s - %(message)s",
+    force=True,
+)
+
+logger = logging.getLogger("ml.startup")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # training jalan sinkron, server belum terima request sampai ini selesai
+    app.state.ml_state = MLState()
+    logger.info("training dimulai saat startup...")
+    try:
+        MLService().train(app.state.ml_state)
+        logger.info(
+            "training selesai: %d kategori, %d aturan",
+            app.state.ml_state.train_meta.get("n_categories", 0),
+            app.state.ml_state.train_meta.get("n_rules", 0),
+        )
+    except Exception as exc:
+        # server tetap hidup
+        # endpoint yang butuh is_trained akan return NOT_TRAINED
+        logger.error("training gagal: %s", exc)
+
+    yield
+    # shutdown: state in-memory hilang otomatis
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.PROJECT_VERSION,
-    description="Scalable FastAPI Backend Template",
-    openapi_url=f"{settings.API_V1_STR}/openapi.json"
+    description="Warehouse Recommendation System Backend",
+    openapi_url=f"{settings.API_PREFIX}/openapi.json",
+    lifespan=lifespan,
 )
 
 # Global handler for dataset not found (returns 404)
@@ -46,7 +81,7 @@ app.add_middleware(
 )
 
 # Include core api router
-app.include_router(api_router, prefix=settings.API_V1_STR)
+app.include_router(api_router, prefix=settings.API_PREFIX)
 
 # Include health router (adds GET /health endpoint)
 from app.routes.health import router as health_router
