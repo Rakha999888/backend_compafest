@@ -54,6 +54,20 @@ class MLService:
         }
         state.is_trained = True
 
+        cached = []
+        for _, row in data.transactions.iterrows():
+            oid = str(row["order_id"])
+            cats = row["itemset"] if isinstance(row["itemset"], list) else list(row["itemset"])
+            cached.append({"order_id": oid, "categories": cats})
+        state.cached_orders = cached
+        logger.info("cached %d orders dari training data", len(cached))
+
+        try:
+            self.configure_warehouse(state, {})
+            logger.info("auto-configure warehouse selesai")
+        except Exception as exc:
+            logger.warning("auto-configure warehouse gagal: %s", exc)
+
         logger.info(
             "training selesai: %d kategori, %d aturan, %.2fs",
             len(categories),

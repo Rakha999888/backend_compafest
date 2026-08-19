@@ -164,9 +164,13 @@ def weighted_fpgrowth(
     sorted_items = sorted(item_weights, key=item_weights.get, reverse=True)
 
     tree = WeightedFPTree()
-    for idx in range(len(binary_matrix)):
-        row = binary_matrix.iloc[idx]
-        tx_items = [item for item in sorted_items if row[item] > 0]
+    bm_values = binary_matrix.values
+    col_indices = {item: i for i, item in enumerate(binary_matrix.columns)}
+    sorted_col_indices = [col_indices[item] for item in sorted_items]
+
+    for idx in range(len(bm_values)):
+        row = bm_values[idx]
+        tx_items = [sorted_items[j] for j, ci in enumerate(sorted_col_indices) if row[ci] > 0]
         if tx_items:
             tree.insert(tx_items, weights[idx])
 

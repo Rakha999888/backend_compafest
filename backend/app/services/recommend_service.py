@@ -21,9 +21,20 @@ class RecommendService:
             self.ml_client = get_mock_ml_client()
             logger.info("Using MockMLClient (reading from ML/ JSON files)")
         else:
-            from app.services.ml_client import get_ml_client
-            self.ml_client = get_ml_client()
-            logger.info("Using MLClient (connecting to %s)", settings.ML_SERVICE_URL)
+            from app.services.inprocess_ml_client import InProcessMLClient
+            from app.services.ml_service import MLService
+            from app.core.ml_state import MLState
+
+            import app.main as _main_mod
+            _app = getattr(_main_mod, '_app_instance', None)
+            if _app and hasattr(_app.state, 'ml_state'):
+                ml_state = _app.state.ml_state
+            else:
+                ml_state = MLState()
+                MLService().train(ml_state)
+
+            self.ml_client = InProcessMLClient(ml_state)
+            logger.info("Using InProcessMLClient (in-process ML, trained from CSV)")
 
     async def recommend(
         self,

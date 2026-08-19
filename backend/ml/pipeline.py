@@ -22,16 +22,29 @@ def compute_distance_comparison(
     frequencies: dict[str, int],
 ) -> dict[str, Any]:
     """Hitung jarak sistem vs baseline acak dan ABC, hasil berupa persentase penghematan."""
+    import random as _rng
+
     order_map = {o.order_id: o for o in orders_data}
-    all_orders_raw = [o.categories for o in orders_data]
+
+    MAX_BASELINE_ORDERS = 300
+    if len(orders_data) > MAX_BASELINE_ORDERS:
+        sample_orders = _rng.sample(orders_data, MAX_BASELINE_ORDERS)
+    else:
+        sample_orders = orders_data
+    sample_cats = [o.categories for o in sample_orders]
 
     random_assign = create_random_assignment(categories, grid)
-    random_result = simulate_picking_distance(all_orders_raw, random_assign, grid)
+    random_result = simulate_picking_distance(sample_cats, random_assign, grid)
     dist_random = random_result["total_distance"]
 
     abc_assign = create_abc_assignment(categories, frequencies, grid)
-    abc_result = simulate_picking_distance(all_orders_raw, abc_assign, grid)
+    abc_result = simulate_picking_distance(sample_cats, abc_assign, grid)
     dist_abc = abc_result["total_distance"]
+
+    if len(orders_data) > MAX_BASELINE_ORDERS:
+        scale = len(orders_data) / MAX_BASELINE_ORDERS
+        dist_random *= scale
+        dist_abc *= scale
 
     dist_system = 0.0
     for batch_order_ids in batching.batches:

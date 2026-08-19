@@ -102,3 +102,17 @@ async def infer(request: Request, payload: InferRequest):
             status_code=422,
             detail={"error": "EMPTY_ORDERS", "message": str(e)},
         )
+
+@router.get("/status")
+async def ml_status(request: Request):
+    """Cek status training ML model."""
+    state = _get_state(request)
+    return {
+        "is_training": state.is_training,
+        "is_trained": state.is_trained,
+        "is_configured": state.is_configured,
+        "training_error": state.training_error,
+        "n_categories": len(state.categories),
+        "n_cached_orders": len(state.cached_orders) if state.cached_orders else 0,
+        "train_meta": state.train_meta,
+    }

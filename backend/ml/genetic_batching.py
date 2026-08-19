@@ -212,19 +212,12 @@ def run_ga_batching(
     n_elite = max(1, int(population_size * elitism_rate))
 
     n_workers = _get_n_workers()
-    use_parallel = (
-        n_workers > 1 and n_orders >= PARALLEL_FITNESS_THRESHOLD
+   
+    use_parallel = False
+    logger.info(
+        "GA batching: %d orders, max_batches=%d, pop=%d, gen=%d (sequential)",
+        n_orders, max_batches, population_size, n_generations,
     )
-    if use_parallel:
-        logger.info(
-            "GA batching: %d orders, max_batches=%d, pop=%d, gen=%d (parallel: %d workers)",
-            n_orders, max_batches, population_size, n_generations, n_workers,
-        )
-    else:
-        logger.info(
-            "GA batching: %d orders, max_batches=%d, pop=%d, gen=%d",
-            n_orders, max_batches, population_size, n_generations,
-        )
 
     population = [
         init_chromosome(n_orders, max_batches, rng=rng)

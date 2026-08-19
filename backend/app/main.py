@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from contextlib import asynccontextmanager
 
@@ -26,12 +27,11 @@ logging.basicConfig(
 logger = logging.getLogger("ml.startup")
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    app.state.ml_state = MLState()
-    logger.info("training dimulai saat startup...")
+async def _train_in_background(app: FastAPI):
+    """Training di background thread supaya event loop tidak terblokir."""
+    app.state.ml_state.is_training = True
     try:
-        MLService().train(app.state.ml_state)
+        await asyncio.to_thread(MLService().train, app.state.ml_state)
         logger.info(
             "training selesai: %d kategori, %d aturan",
             app.state.ml_state.train_meta.get("n_categories", 0),
@@ -39,9 +39,20 @@ async def lifespan(app: FastAPI):
         )
     except Exception as exc:
         logger.error("training gagal: %s", exc)
+        app.state.ml_state.training_error = str(exc)
+    finally:
+        app.state.ml_state.is_training = False
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    app.state.ml_state = MLState()
+    logger.info("training dimulai di background...")
+    task = asyncio.create_task(_train_in_background(app))
     yield
-    # shutdown
+    # shutdown: pastikan training task selesai
+    if not task.done():
+        task.cancel()
 
 
 app = FastAPI(
@@ -51,6 +62,8 @@ app = FastAPI(
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
     lifespan=lifespan,
 )
+
+_app_instance = app
 
 
 @app.exception_handler(DatasetNotFoundError)

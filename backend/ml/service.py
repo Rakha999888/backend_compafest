@@ -261,10 +261,32 @@ def infer(
         for o in orders
     ]
 
+    # Adaptive GA params berdasarkan jumlah orders
+    # Untuk real-time inference, GA harus selesai dalam hitungan detik
+    n_orders = len(order_objects)
+    if n_orders <= 50:
+        ga_pop, ga_gen, ga_stag = 50, 50, 10
+    elif n_orders <= 200:
+        ga_pop, ga_gen, ga_stag = 80, 80, 15
+    elif n_orders <= 500:
+        ga_pop, ga_gen, ga_stag = 100, 80, 15
+    elif n_orders <= 1000:
+        ga_pop, ga_gen, ga_stag = 80, 60, 12
+    else:
+        # Untuk order sangat banyak, GA ringan + stagnation cepat
+        ga_pop, ga_gen, ga_stag = 60, 40, 10
+
+    logger.info(
+        "infer: %d orders -> GA pop=%d, gen=%d, stag=%d",
+        n_orders, ga_pop, ga_gen, ga_stag,
+    )
+
     batching = run_ga_batching(
         order_objects,
         affinity,
-        population_size=POPULATION_SIZE,
+        population_size=ga_pop,
+        n_generations=ga_gen,
+        stagnation_limit=ga_stag,
         seed=actual_seed,
     )
 

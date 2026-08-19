@@ -14,8 +14,8 @@ class Settings(BaseSettings):
     RATE_LIMIT_PER_MINUTE: int = 60
 
     ML_SERVICE_URL: str = "http://localhost:8001"
-    ML_SERVICE_TIMEOUT: int = 60
-    USE_MOCK_ML: bool = True
+    ML_SERVICE_TIMEOUT: int = 300
+    USE_MOCK_ML: bool = False
 
     MAX_UPLOAD_SIZE: int = 10_485_760
     PROCESSING_TIMEOUT: int = 30_000
